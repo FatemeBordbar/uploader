@@ -41,4 +41,15 @@ class User extends Authenticatable
             ->first();
     }
 
+    /**
+     * Find the user instance for the given username.
+     *
+     * @param  string  $username
+     * @return \App\Models\User
+     */
+    public function findForPassport($username)
+    {
+        return $this->where('username', $username)->first();
+    }
+
 }
