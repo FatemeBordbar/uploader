@@ -2,18 +2,14 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\LoginController;
+use App\Http\Controllers\Api\V1\RegisterController;
+use App\Http\Controllers\Api\V1\UploadController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::prefix('V1/')->namespace('api/V1/')->group(function () {
+    Route::post('/register', [RegisterController::class, 'register'])->name('api-register');
+    Route::post('/login', [LoginController::class, 'login'])->name('api-login');
+    Route::middleware('auth:api')->post('/file_upload', [UploadController::class, 'fileUpload']);
+    Route::middleware('auth:api')->get('/user_files', [UploadController::class, 'userFiles']);
 });
+
