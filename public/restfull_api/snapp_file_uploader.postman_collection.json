@@ -1,0 +1,170 @@
+{
+	"info": {
+		"_postman_id": "67e2f9ca-df9a-4a39-83b5-135cf3f827ee",
+		"name": "snapp_file_uploader",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "V1",
+			"item": [
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "mohamadreza",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123321",
+									"type": "text"
+								},
+								{
+									"key": "role",
+									"value": "1",
+									"description": "role should be 1 or 2. 1 referres to uploader user and 2 means user is simple viwer.",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "127.0.0.1:8000/api/V1/register",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"V1",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "mohamadreza",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123321",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "127.0.0.1:8000/api/V1/login",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"V1",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "file_upload",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-type",
+								"value": "multipart/form-data",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/Lenovo/Desktop/Me/pictute/pictures/JONOB/400082500240_214319.jpg"
+								},
+								{
+									"key": "entity_type",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "entity_id",
+									"value": "2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "127.0.0.1:8000/api/V1/file_upload",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"V1",
+								"file_upload"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

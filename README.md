@@ -40,6 +40,6 @@ when uploading, these are checked :
 after check every thing that you think is time to upload file and insert data to database
 the success result give you, file path and file id inserted in database "file table".
 
-
+        restfull api export file path = public\restfull_api
 
 
