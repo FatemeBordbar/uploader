@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
-use mysql_xdevapi\Table;
-use mysql_xdevapi\TableDelete;
+use Illuminate\Support\Facades\Hash;
+
 
 class User extends Authenticatable
 {
@@ -18,7 +18,7 @@ class User extends Authenticatable
 
 
     protected $fillable = [
-        'username', 'password'
+        'username', 'password','has_access'
     ];
     /**
      * The attributes that should be hidden for serialization.
@@ -68,5 +68,10 @@ class User extends Authenticatable
         return self::where('username', '=', $username)
             ->HasAccess()
             ->first();
+    }
+
+    public static function checkPassword($userPassword, $hashedPassword): bool
+    {
+        return Hash::check($userPassword, $hashedPassword);
     }
 }

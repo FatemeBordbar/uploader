@@ -41,7 +41,11 @@ class RegisterController extends Controller
 
         {
             DB::beginTransaction();
-            $inserted = $this->repository->create(['username' => $a['username'], 'password' => Hash::make($a['password']), 'has_access' => true]);
+            $inserted = $this->repository->create([
+                'username' => $a['username'],
+                'password' => Hash::make($a['password']),
+                'has_access' => 1
+            ]);
             $roles = UserRole::insert($inserted->id, $a['role']);
 
             if( !$inserted || !$roles )
@@ -53,7 +57,7 @@ class RegisterController extends Controller
         }
 
         $access_token = $this->common->getAccessToken($a['username'], $a['password']);
-        $this->common->response(true, null, $access_token, HTTP_BAD_REQUEST);
+        $this->common->response(true, null, $access_token, HTTP_OK);
 
     }
 }
