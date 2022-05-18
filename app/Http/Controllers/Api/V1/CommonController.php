@@ -24,7 +24,7 @@ class CommonController extends Controller
             'password' => $password,
             'scope' => '',
         ]);
-        
+
         return $response->json();
     }
 }

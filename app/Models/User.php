@@ -30,6 +30,17 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    /**
+     * Scope a query to only include has_access users.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeHasAccess($query)
+    {
+        return $query->where('has_access', 1);
+    }
+
     public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'users_roles', 'user_id', 'role_id');
@@ -52,4 +63,10 @@ class User extends Authenticatable
         return $this->where('username', $username)->first();
     }
 
+    public static function hasAccess($username)
+    {
+        return self::where('username', '=', $username)
+            ->HasAccess()
+            ->first();
+    }
 }
