@@ -28,7 +28,6 @@ class LoginController extends Controller
         }
 
         $user = (new User)->hasAccess($a['username']);
-
         if (is_null($user)) {
             $this->common->response(false, USER_NOT_FOUND, NULL, HTTP_BAD_REQUEST);
         } else {
