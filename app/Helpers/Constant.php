@@ -66,3 +66,17 @@ const USERNAME_ALREADY_EXISTS = 'این کاربر قبلا در سیستم ثب
 const PASSWORD_MISMATCH = 'رمز عبور نادرست است!';
 const CANNOT_UPLOAD_FOR_THIS_ENTITY = 'شما نمی توانید برای این موجودیت، فایل آپلود کنید!';
 const ROLE_INDEX_TITLE = 'نقش های دسترسی ';
+const ALLOWED_ENTITY_TYPES = [1,2,3];
+const ALLOWED_ENTITY_SIZE = 30000000;
+
+const UPLOAD_ARTICLE_PHOTO_FILE_TYPES = 'png|jpg|jpeg|bmp';
+const MAX_UPLOAD_ARTICLE_PHOTO_FILE_SIZE =5000000;
+const USERS_WHO_CAN_UPLOAD_ARTICLE_PHOTO = [1];
+
+const UPLOAD_ARTICLE_VIDEO_FILE_TYPES = 'avi';
+const MAX_UPLOAD_ARTICLE_VIDEO_FILE_SIZE = 50000000;
+const USERS_WHO_CAN_UPLOAD_ARTICLE_VIDEO = [1] ;
+
+const UPLOAD_ARTICLE_PDF_FILE_TYPES = 'pdf|txt';
+const MAX_UPLOAD_ARTICLE_PDF_FILE_SIZE = 5000000;
+const USERS_WHO_CAN_UPLOAD_PDF = [1];
