@@ -36,9 +36,7 @@ class Common
     {
 
         $locale = app()->getLocale();
-        $locale = $locale == 'en' ? 'en' : 'fa';
-
-        return $locale;
+        return $locale == 'en' ? 'en' : 'fa';
     }
 
     public static function shaveInputAPI($parameters): array
@@ -57,7 +55,7 @@ class Common
         return [];
     }
 
-    public static function trimInput($key)
+    public static function trimInput($key): array
     {
         $o = Request::all();
         $r = [];
@@ -74,7 +72,7 @@ class Common
         return $r;
     }
 
-    public static function fileUploadAPI($idName, $allowedSize, $allowedFormat, $moveToFolder, $entity_type, $entity_id, $caption, $api_user_id = null)
+    public static function fileUploadAPI($idName, $allowedSize, $allowedFormat, $moveToFolder, $entity_type, $entity_id, $caption = null, $api_user_id): array|string
     {
         $root = "";
         if (!isset($_FILES[$idName])) {
@@ -87,30 +85,31 @@ class Common
         $temp = $_FILES[$idName]["tmp_name"];
         $error = $_FILES[$idName]["error"];
         if ($error > 0) {
-            return FILE_UPLOADER_ERROR_GENERAL . ' ' . errorUploadFileStringMapping($error);
+            return FILE_UPLOADER_ERROR_GENERAL . ' ' . self::errorUploadFileStringMapping($error);
         } else {
             if ($size > $allowedSize) {
                 return FILE_UPLOADER_ERROR_SIZE . ' ' . $allowedSize;
             }
-            $allowedMimeTypes = processExtensionAndMime($allowedFormat);
+
+            $allowedMimeTypes = self::processExtensionAndMime($allowedFormat);
             if (!in_array($type, $allowedMimeTypes)) {
                 return FILE_UPLOADER_ERROR_FORMAT;
             } else {
 
                 $exists = true;
-                $extension = getExtension($name);
+                $file_path = '';
+                $extension = self::getExtension($name);
                 while ($exists) {
-                    $newfile = $entity_type != 16 ? generateFilename() . '.' . $extension : $name;
-                    $file_path = $moveToFolder . $newfile;
-                    $exists = \App\Models\File::existsByPath($file_path);
+                    $file_path = $moveToFolder . self::generateFilename() . '.' . $extension;
+                    $exists = File::existsByPath($file_path);
                 }
                 $file = $root . $file_path;
                 $done = move_uploaded_file($temp, $file);
                 {
                     $hash = hash('md5', $name);
-                    $r = self::fileInsert($caption, $file_path, $api_user_id != null && $api_user_id != '' ? $api_user_id : Auth::user()->id, $entity_type, $entity_id, $name, $size, $extension, $hash);
-                    if ($r >= 1) {
-                        return [$file_path, $r, env('APP_URL')];
+                    $file_id = self::fileInsert($caption, $file_path, $api_user_id, $entity_type, $entity_id, $name, $size, $extension, $hash);
+                    if ($file_id >= 1) {
+                        return ['file_path: ' =>$file_path, 'file_inserted_id: ' =>$file_id];
                     } else {
                         return FILE_UPLOADER_ERROR_DB_INSERTION;
                     }
@@ -120,68 +119,9 @@ class Common
         }
     }
 
-    public static function fileUpload($idName, $allowedSize, $allowedFormat, $moveToFolder, $entity_type, $entity_id, $caption, $filename = null)
-    {
-        $root = ''; //$_SERVER["DOCUMENT_ROOT"] . '/';
-        $name = $_FILES[$idName]["name"];
-        $type = $_FILES[$idName]["type"];
-        $size = $_FILES[$idName]["size"];
-        $temp = $_FILES[$idName]["tmp_name"];
-        $error = $_FILES[$idName]["error"];
-        $caption = $caption == "" ? $name : $caption;
-
-        if ($error > 0) {
-            return FILE_UPLOADER_ERROR_GENERAL . ' ' . errorUploadFileStringMapping($error);
-        } else {
-            if ($size > $allowedSize) {
-                return FILE_UPLOADER_ERROR_SIZE . ' ' . $allowedSize;
-            }
-            $allowedMimeTypes = processExtensionAndMime($allowedFormat);
-            if (!in_array($type, $allowedMimeTypes)) {
-                return FILE_UPLOADER_ERROR_FORMAT;
-            } else {
-                if ($entity_type == 6) {
-                    //upload epub on other server
-                    $epub_upload_result = self::uploadEpub($name, $caption, $size, $entity_id, $temp);
-                    return [$epub_upload_result, true];
-                } else {
-                    $exists = true;
-                    $extension = getExtension($name);
-
-                    if ($filename != null) {
-
-                        $newfile = $filename . '.' . $extension;
-                        $file_path = $moveToFolder . $newfile;
-                    } else {
-
-                        while ($exists) {
-                            $newfile = generateFilename() . '.' . $extension;
-                            $file_path = $moveToFolder . $newfile;
-                            $exists = \App\Models\File::existsByPath($file_path);
-                        }
-                    }
-
-                    $file = $root . $file_path;
-                    $done = move_uploaded_file($temp, $file);
-                    {
-                        $hash = hash('md5', $name);
-                        $r = self::fileInsert($caption, $file_path, Auth::user()->id, $entity_type, $entity_id, $name, $size, $extension, $hash);
-                        if ($r >= 1) {
-                            return [$r, $file_path];
-                        } else {
-                            return FILE_UPLOADER_ERROR_DB_INSERTION;
-                        }
-                    }
-                    return true;
-                }
-                return true;
-            }
-        }
-    }
-
     public static function fileInsert($caption, $path, $user_id, $entity_type, $entity_id, $name, $size, $extension, $hash)
     {
-        return \App\Models\File::insert([
+        return File::insert([
             'caption' => $caption,
             'path' => $path,
             'user_id' => $user_id,
@@ -194,7 +134,7 @@ class Common
         ]);
     }
 
-    public static function getHostRequest(): string
+    public static function getHostRequestAuthApi(): string
     {
         $host = request()->getHttpHost();
         if($host == '127.0.0.1:8000')
@@ -204,4 +144,96 @@ class Common
         return $host;
     }
 
+    // Helpers Methods
+    public static function processExtensionAndMime($in): array
+    {
+        if (strlen($in) <= 2) {
+            return [];
+        }
+        $extensions = explode('|', $in);
+        $returnee = [];
+        foreach ($extensions as $extension) {
+            if ($extension != '' && $extension !== null) {
+                $returnee = array_merge($returnee, self::extensionToMimeType($extension));
+            }
+        }
+        return $returnee;
+    }
+
+    public static function extensionToMimeType($in): array
+    {
+        switch ($in) {
+            case 'jpg':
+            case 'jpeg':
+                return ['image/jpeg'];
+            case 'bmp':
+                return ['image/bmp'];
+            case 'png':
+                return ['image/png'];
+            case 'txt':
+                return ['text/plain'];
+            case 'doc':
+                return ['application/msword'];
+            case 'docx':
+                return ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            case 'pdf':
+                return ['application/pdf'];
+            case 'avi':
+                return ['video/avi', 'application/x-troff-msvideo', 'video/msvideo', 'video/x-msvideo'];
+            case '':
+            default:
+                throw new \Exception("Extension to Mime Failure: " . $in);
+        }
+        throw new \Exception("Extension to Mime Failure: " . $in);
+    }
+
+    public static function getExtension($file): array|string
+    {
+        return pathinfo($file, PATHINFO_EXTENSION);
+    }
+
+    public static function generateFilename(): string
+    {
+        $length = 20;
+        $token = "";
+        $codeAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        $codeAlphabet .= "abcdefghijklmnopqrstuvwxyz";
+        for ($i = 0; $i < $length; $i++) {
+            $token .= $codeAlphabet[self::cryptoRandSecure(0, strlen($codeAlphabet))];
+        }
+        return $token;
+    }
+
+    public static function errorUploadFileStringMapping($error): string
+    {
+        return match ($error) {
+            0 => 'UPLOAD_ERR_OK',
+            1 => 'UPLOAD_ERR_INI_SIZE',
+            2 => 'UPLOAD_ERR_FORM_SIZE',
+            3 => 'UPLOAD_ERR_PARTIAL',
+            4 => 'UPLOAD_ERR_NO_FILE',
+            6 => 'UPLOAD_ERR_NO_TMP_DIR',
+            7 => 'UPLOAD_ERR_CANT_WRITE',
+            8 => 'UPLOAD_ERR_EXTENSION',
+            default => 'UPLOAD_ERR_UNKNOWN',
+        };
+        return 'UPLOAD_ERR_UNKNOWN';
+    }
+
+    public static function cryptoRandSecure($min, $max)
+    {
+        $range = $max - $min;
+        if ($range < 0) {
+            return $min;
+        }
+        $log = log($range, 2);
+        $bytes = (int)($log / 8) + 1;
+        $bits = (int)$log + 1;
+        $filter = (1 << $bits) - 1;
+        do {
+            $rnd = hexdec(bin2hex(openssl_random_pseudo_bytes($bytes)));
+            $rnd = $rnd & $filter;
+        } while ($rnd >= $range);
+        return $min + $rnd;
+    }
 }

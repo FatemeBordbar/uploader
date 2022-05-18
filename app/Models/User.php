@@ -74,4 +74,15 @@ class User extends Authenticatable
     {
         return Hash::check($userPassword, $hashedPassword);
     }
+
+    public static function userIdHasRole($user_id, $roles_id_array): bool
+    {
+        $d = self::where('id', '=', $user_id)
+            ->hasAccess()
+            ->whereHas('roles', function ($q) use ($roles_id_array) {
+                $q->whereIn('roles.id', $roles_id_array);
+            })
+            ->first();
+        return !empty($d);
+    }
 }

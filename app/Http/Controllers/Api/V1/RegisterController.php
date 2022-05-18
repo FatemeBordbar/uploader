@@ -38,7 +38,6 @@ class RegisterController extends Controller
         if ($user != null) {
             $this->common->response(false, USERNAME_ALREADY_EXISTS, NULL, HTTP_BAD_REQUEST);
         }
-
         {
             DB::beginTransaction();
             $inserted = $this->repository->create([
@@ -58,6 +57,5 @@ class RegisterController extends Controller
 
         $access_token = $this->common->getAccessToken($a['username'], $a['password']);
         $this->common->response(true, null, $access_token, HTTP_OK);
-
     }
 }

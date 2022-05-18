@@ -10,6 +10,5 @@ Route::prefix('V1/')->namespace('api/V1/')->group(function () {
     Route::post('/register', [RegisterController::class, 'register'])->name('api-register');
     Route::post('/login', [LoginController::class, 'login'])->name('api-login');
     Route::middleware('auth:api')->post('/file_upload', [UploadController::class, 'fileUpload']);
-    Route::middleware('auth:api')->get('/user_files', [UploadController::class, 'userFiles']);
 });
 

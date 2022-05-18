@@ -15,7 +15,7 @@ class CommonController extends Controller
 
     function getAccessToken($username, $password): array
     {
-        $url = Common::getHostRequest() ."/". config()->get('uploader.oauth_path_get_token');
+        $url = Common::getHostRequestAuthApi() ."/". config()->get('uploader.oauth_path_get_token');
         $response = Http::asForm()->post($url, [
             'grant_type' => 'password',
             'client_id' => config()->get('uploader.oauth_client_id'),
